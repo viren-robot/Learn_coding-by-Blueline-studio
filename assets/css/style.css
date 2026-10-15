@@ -245,6 +245,45 @@ code { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; 
   justify-content: center;
 }
 
+/* Lesson steps and video */
+.step-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 22px;
+}
+.step-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 2px solid var(--border);
+  background: var(--card);
+  color: var(--muted);
+  font-weight: 800;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+.step-dot:hover { border-color: var(--level, var(--brand)); }
+.step-dot.current {
+  background: var(--level, var(--brand));
+  border-color: var(--level, var(--brand));
+  color: #fff;
+}
+.step-dot.practice { color: var(--level, var(--brand)); }
+.video-panel { padding: 16px; }
+.lesson-video {
+  display: block;
+  width: 100%;
+  border-radius: 12px;
+  background: #0f1226;
+  aspect-ratio: 16 / 9;
+}
+.video-caption { margin: 10px 2px 0; color: var(--muted); font-size: 0.92rem; }
+
 /* Quiz */
 .quiz-options { display: grid; gap: 10px; margin-top: 10px; }
 .quiz-option {

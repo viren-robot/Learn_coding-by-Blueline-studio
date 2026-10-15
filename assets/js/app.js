@@ -2,6 +2,7 @@
   "use strict";
 
   var LEVELS = window.LEVELS;
+  var LESSONS = window.LESSONS || {};
   var app = document.getElementById("app");
   var STORE_KEY = "blueline-completed";
 
@@ -43,6 +44,12 @@
   function findChapter(level, id) {
     return level.chapters.filter(function (c) { return c.id === id; })[0];
   }
+  function lessonsFor(levelId, chapterId) {
+    return (LESSONS[levelId] && LESSONS[levelId][chapterId]) || [];
+  }
+  function videoPath(levelId, chapterId, lessonNumber) {
+    return "assets/videos/l" + levelId + "-c" + chapterId + "-" + lessonNumber + ".mp4";
+  }
 
   function totalChapters() {
     return LEVELS.reduce(function (n, l) { return n + l.chapters.length; }, 0);
@@ -81,7 +88,7 @@
       '<section class="hero">' +
         '<div class="container">' +
           "<h1>Learn to code, build and create robots</h1>" +
-          "<p>Six levels, thirty chapters. Start with simple circuits, build robots and RC vehicles, then move on to autonomous robots and virtual reality. Ask Robo, the helper in the corner, whenever you get stuck.</p>" +
+          "<p>Six levels, thirty chapters, and three hundred video lessons. Start with simple circuits, build robots and RC vehicles, then move on to autonomous robots and virtual reality. Ask Robo, the helper in the corner, whenever you get stuck.</p>" +
           progressBlock() +
         "</div>" +
       "</section>" +
@@ -101,6 +108,7 @@
           '<span class="num">' + c.id + "</span>" +
           "<h3>" + esc(c.title) + "</h3>" +
           "<p>" + esc(c.summary) + "</p>" +
+          '<div class="meta">' + lessonsFor(level.id, c.id).length + " video lessons</div>" +
         "</a>"
       );
     }).join("");
@@ -130,56 +138,102 @@
     }).join("");
   }
 
-  function quizHtml(quiz, levelId, chapterId) {
-    var opts = quiz.options.map(function (o, i) {
-      return '<button class="quiz-option" data-index="' + i + '">' + esc(o) + "</button>";
-    }).join("");
-    return (
-      '<div class="panel" id="quiz">' +
-        "<h2>Quick check</h2>" +
-        "<p>" + esc(quiz.question) + "</p>" +
-        '<div class="quiz-options">' + opts + "</div>" +
-        '<div class="quiz-feedback" id="quiz-feedback" aria-live="polite"></div>' +
-      "</div>"
-    );
+  // Lesson steps: 1-10 are lessons, 11 is the practice page.
+  function stepBar(levelId, chapterId, current, total) {
+    var dots = "";
+    for (var i = 1; i <= total; i++) {
+      var cls = "step-dot" + (i === current ? " current" : "");
+      dots += '<a class="' + cls + '" href="#/level/' + levelId + "/chapter/" + chapterId + "/lesson/" + i + '" title="Lesson ' + i + '">' + i + "</a>";
+    }
+    var practiceCls = "step-dot practice" + (current === "practice" ? " current" : "");
+    dots += '<a class="' + practiceCls + '" href="#/level/' + levelId + "/chapter/" + chapterId + '/practice" title="Practice">★</a>';
+    return '<div class="step-bar" aria-label="Lesson steps">' + dots + "</div>";
   }
 
-  function renderChapter(levelId, chapterId) {
+  function renderLesson(levelId, chapterId, n) {
+    var level = findLevel(levelId);
+    var chapter = level && findChapter(level, chapterId);
+    var lessons = lessonsFor(levelId, chapterId);
+    var lesson = lessons[n - 1];
+    if (!chapter || !lesson) return renderNotFound();
+
+    var prevHref = n > 1
+      ? "#/level/" + levelId + "/chapter/" + chapterId + "/lesson/" + (n - 1)
+      : "#/level/" + levelId;
+    var nextHref = n < lessons.length
+      ? "#/level/" + levelId + "/chapter/" + chapterId + "/lesson/" + (n + 1)
+      : "#/level/" + levelId + "/chapter/" + chapterId + "/practice";
+    var nextLabel = n < lessons.length ? "Next lesson →" : "Practice →";
+
+    app.innerHTML =
+      '<div class="container page" ' + levelStyle(level) + ">" +
+        '<div class="crumbs"><a href="#/">Home</a> / <a href="#/level/' + level.id + '">Level ' + level.id + " · " + esc(level.name) + '</a> / <a href="#/level/' + level.id + "/chapter/" + chapter.id + '">Chapter ' + chapter.id + "</a></div>" +
+        '<h1 class="page-title">' + esc(chapter.title) + "</h1>" +
+        '<p class="page-sub">Lesson ' + n + " of " + lessons.length + ": " + esc(lesson.title) + "</p>" +
+        stepBar(levelId, chapterId, n, lessons.length) +
+
+        '<div class="panel video-panel">' +
+          '<video class="lesson-video" controls preload="metadata" playsinline src="' + videoPath(levelId, chapterId, n) + '">' +
+            "Your browser cannot play this video." +
+          "</video>" +
+          '<p class="video-caption">Video lesson ' + n + " · " + esc(lesson.title) + "</p>" +
+        "</div>" +
+
+        '<div class="panel"><h2>' + esc(lesson.title) + "</h2>" + lessonBlocks(lesson.blocks) + "</div>" +
+
+        '<div class="btn-row">' +
+          '<a class="btn" href="' + prevHref + '">← Previous</a>' +
+          '<a class="btn primary" href="' + nextHref + '">' + nextLabel + "</a>" +
+        "</div>" +
+      "</div>";
+
+    wireVideo();
+  }
+
+  function wireVideo() {
+    var video = document.querySelector(".lesson-video");
+    if (!video) return;
+    video.addEventListener("error", function () {
+      var note = document.createElement("div");
+      note.className = "tip";
+      note.innerHTML = "<strong>Video not available yet.</strong> Read the lesson below instead.";
+      video.parentNode.replaceChild(note, video);
+    });
+  }
+
+  function renderPractice(levelId, chapterId) {
     var level = findLevel(levelId);
     var chapter = level && findChapter(level, chapterId);
     if (!chapter) return renderNotFound();
 
     var idx = level.chapters.indexOf(chapter);
-    var prev = level.chapters[idx - 1];
     var next = level.chapters[idx + 1];
     var completed = isDone(level.id, chapter.id);
+    var lessonCount = lessonsFor(levelId, chapterId).length;
 
     var goals = chapter.goals.map(function (g) { return "<li>" + esc(g) + "</li>"; }).join("");
     var steps = chapter.activity.steps.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("");
 
     app.innerHTML =
       '<div class="container page" ' + levelStyle(level) + ">" +
-        '<div class="crumbs"><a href="#/">Home</a> / <a href="#/level/' + level.id + '">Level ' + level.id + " · " + esc(level.name) + "</a> / Chapter " + chapter.id + "</div>" +
-        '<h1 class="page-title">' + esc(chapter.title) + "</h1>" +
+        '<div class="crumbs"><a href="#/">Home</a> / <a href="#/level/' + level.id + '">Level ' + level.id + " · " + esc(level.name) + '</a> / <a href="#/level/' + level.id + "/chapter/" + chapter.id + '">Chapter ' + chapter.id + "</a> / Practice</div>" +
+        '<h1 class="page-title">' + esc(chapter.title) + " · Practice</h1>" +
         '<p class="page-sub">' + esc(chapter.summary) + "</p>" +
+        stepBar(levelId, chapterId, "practice", lessonCount) +
 
         '<div class="panel"><h2>What you will learn</h2><ul class="goals">' + goals + "</ul></div>" +
 
-        '<div class="panel"><h2>Lesson</h2>' + lessonBlocks(chapter.lesson) + "</div>" +
-
         '<div class="panel"><h2>Activity: ' + esc(chapter.activity.title) + '</h2><ol class="steps">' + steps + "</ol></div>" +
 
-        quizHtml(chapter.quiz, level.id, chapter.id) +
+        quizHtml(chapter.quiz) +
 
         '<div class="btn-row">' +
-          (prev
-            ? '<a class="btn" href="#/level/' + level.id + "/chapter/" + prev.id + '">← Previous</a>'
-            : '<a class="btn" href="#/level/' + level.id + '">← Level ' + level.id + "</a>") +
+          '<a class="btn" href="#/level/' + level.id + "/chapter/" + chapter.id + "/lesson/" + lessonCount + '">← Last lesson</a>' +
           '<button class="btn primary" id="complete-btn">' +
             (completed ? "✓ Completed" : "Mark as complete") +
           "</button>" +
           (next
-            ? '<a class="btn" href="#/level/' + level.id + "/chapter/" + next.id + '">Next →</a>'
+            ? '<a class="btn" href="#/level/' + level.id + "/chapter/" + next.id + '/lesson/1">Next chapter →</a>'
             : '<a class="btn" href="#/level/' + level.id + '">Finish level ✓</a>') +
         "</div>" +
       "</div>";
@@ -192,6 +246,20 @@
       setDone(level.id, chapter.id, nowDone);
       completeBtn.textContent = nowDone ? "✓ Completed" : "Mark as complete";
     });
+  }
+
+  function quizHtml(quiz) {
+    var opts = quiz.options.map(function (o, i) {
+      return '<button class="quiz-option" data-index="' + i + '">' + esc(o) + "</button>";
+    }).join("");
+    return (
+      '<div class="panel" id="quiz">' +
+        "<h2>Quick check</h2>" +
+        "<p>" + esc(quiz.question) + "</p>" +
+        '<div class="quiz-options">' + opts + "</div>" +
+        '<div class="quiz-feedback" id="quiz-feedback" aria-live="polite"></div>' +
+      "</div>"
+    );
   }
 
   function wireQuiz(quiz) {
@@ -215,7 +283,7 @@
   function renderNotFound() {
     app.innerHTML =
       '<div class="container page"><h1 class="page-title">Page not found</h1>' +
-      '<p class="page-sub">That level or chapter does not exist.</p>' +
+      '<p class="page-sub">That level, chapter or lesson does not exist.</p>' +
       '<a class="btn primary" href="#/">Back to home</a></div>';
   }
 
@@ -228,7 +296,13 @@
     } else if (parts[0] === "level" && parts.length === 2) {
       renderLevel(Number(parts[1]));
     } else if (parts[0] === "level" && parts[2] === "chapter" && parts.length === 4) {
-      renderChapter(Number(parts[1]), Number(parts[3]));
+      // A chapter opens at its first lesson.
+      window.location.replace("#/level/" + parts[1] + "/chapter/" + parts[3] + "/lesson/1");
+      return;
+    } else if (parts[0] === "level" && parts[2] === "chapter" && parts[4] === "lesson" && parts.length === 6) {
+      renderLesson(Number(parts[1]), Number(parts[3]), Number(parts[5]));
+    } else if (parts[0] === "level" && parts[2] === "chapter" && parts[4] === "practice" && parts.length === 5) {
+      renderPractice(Number(parts[1]), Number(parts[3]));
     } else {
       renderNotFound();
     }

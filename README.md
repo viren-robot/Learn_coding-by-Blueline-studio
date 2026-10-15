@@ -2,14 +2,14 @@
 
 A free, kid-friendly coding course that runs as a static website on GitHub Pages.
 
-- **6 levels, 5 chapters each (30 chapters total)**
+- **6 levels, 5 chapters each (30 chapters total), 10 lessons per chapter (300 lessons)**
   1. **IRobo Quest**: Arduino, LEDs, buttons, motors and servos, 7-segment displays, Teachable Machine
   2. **IRoboCraft**: 3D printing, CAD design, gears, levers and pulleys, building a printed robot
   3. **IRobolive**: Python basics, functions, databases, SQL, sensors and live data
   4. **IRoboVerse**: wireless control, RC cars, phone-controlled robots, drones, final project
   5. **VRoboTech**: advanced sensors, autonomous navigation, computer vision, ROS, automation
   6. **VRoboVR**: VR and AR basics, 3D worlds, scripting interactions, digital twins, VR robot lab final project
-- Every chapter has goals, a lesson, code samples, an activity and a quick-check quiz.
+- Every lesson has a video and a short written lesson with code samples. Each chapter ends with a practice page: an activity and a quick-check quiz.
 - Progress is saved in the browser (per device).
 - **Robo**, the built-in assistant (bottom-right corner), answers questions from the course content and a small glossary. It runs entirely in the browser, so it needs no API key or server.
 
@@ -18,13 +18,27 @@ A free, kid-friendly coding course that runs as a static website on GitHub Pages
 ```
 index.html              page shell
 assets/css/style.css    styles (light and dark mode, phone-friendly)
-assets/js/content.js    all levels, chapters, lessons and quizzes
-assets/js/app.js        page routing, progress tracking, quizzes
+assets/js/content.js    levels, chapters, activities, quizzes and assistant keywords
+assets/js/lessons/      the 10 lessons per chapter (helpers.js, level1.js ... level6.js)
+assets/js/app.js        page routing, lesson player, progress tracking, quizzes
 assets/js/assistant.js  the Robo assistant
+assets/videos/          one MP4 per lesson, named l<level>-c<chapter>-<lesson>.mp4
+tools/make-lesson-videos.js  rebuilds the lesson videos from the lesson files
 .nojekyll               tells GitHub Pages to serve the files as-is
 ```
 
-To add or edit a lesson, change `assets/js/content.js`. Each chapter's `keys` list controls which questions the assistant links to it.
+To edit a lesson, change its file in `assets/js/lessons/`. To change a chapter's activity, quiz or assistant keywords, edit `assets/js/content.js`.
+
+## Lesson videos
+
+Each lesson has a video in `assets/videos/`. The included videos are silent slide videos made from each lesson's title and key points. To regenerate them after editing lessons:
+
+```bash
+npm install playwright          # once
+node tools/make-lesson-videos.js
+```
+
+This needs `ffmpeg` on your PATH. To use real narrated videos instead, replace a file in `assets/videos/` with your own MP4 using the same name.
 
 ## Publish on GitHub Pages
 

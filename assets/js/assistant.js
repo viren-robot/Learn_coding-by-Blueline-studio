@@ -80,7 +80,12 @@
   function chapterAnswer(item) {
     var c = item.chapter;
     var l = item.level;
-    var keyIdea = c.lesson.filter(function (b) { return b.type === "p"; })[0];
+    var lessons = (window.LESSONS && window.LESSONS[l.id] && window.LESSONS[l.id][c.id]) || [];
+    var keyIdea = null;
+    lessons.forEach(function (lesson) {
+      if (keyIdea) return;
+      keyIdea = lesson.blocks.filter(function (b) { return b.type === "p"; })[0] || null;
+    });
     var text = "From " + l.name + ", Chapter " + c.id + ": " + c.title + ".\n" +
       c.summary + (keyIdea ? "\n\n" + keyIdea.text : "") +
       "\n\nTry this: " + c.activity.title + ".";
