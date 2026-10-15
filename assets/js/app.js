@@ -81,7 +81,7 @@
       '<section class="hero">' +
         '<div class="container">' +
           "<h1>Learn to code, build and create robots</h1>" +
-          "<p>Four levels, twenty chapters. Start with simple circuits and finish with your own connected RC vehicle or drone. Ask Robo, the helper in the corner, whenever you get stuck.</p>" +
+          "<p>Six levels, thirty chapters. Start with simple circuits, build robots and RC vehicles, then move on to autonomous robots and virtual reality. Ask Robo, the helper in the corner, whenever you get stuck.</p>" +
           progressBlock() +
         "</div>" +
       "</section>" +

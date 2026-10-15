@@ -24,7 +24,7 @@
     {
       match: /\b(help|what can you do|how do you work)\b/,
       reply: function () {
-        return "I know the content of all 20 chapters. Try asking about:\n• Arduino, LEDs, buttons\n• Motors and servos\n• 7-segment displays\n• Teachable Machine\n• 3D printing and CAD\n• Gears and levers\n• Python, functions and loops\n• Databases and SQL\n• Sensors and logging\n• WiFi, RC cars and drones\n\nYou can also say \"levels\" to see the full list.";
+        return "I know the content of all " + allChapters().length + " chapters. Try asking about:\n• Arduino, LEDs, buttons\n• Motors and servos\n• 7-segment displays\n• Teachable Machine\n• 3D printing and CAD\n• Gears and levers\n• Python, functions and loops\n• Databases and SQL\n• Sensors and logging\n• WiFi, RC cars and drones\n• Distance sensors and line following\n• Computer vision and ROS\n• VR, 3D worlds and digital twins\n\nYou can also say \"levels\" to see the full list.";
       }
     },
     {

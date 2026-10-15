@@ -727,5 +727,358 @@ void loop() {
         }
       }
     ]
+  },
+  {
+    id: 5,
+    slug: "vrobotech",
+    name: "VRoboTech",
+    color: "#14b8a6",
+    icon: "⚙️",
+    tagline: "Advanced robot technology: smarter sensors, autonomous navigation, vision and automation.",
+    chapters: [
+      {
+        id: 1,
+        title: "Robot Sensors in Depth",
+        summary: "Measure distance, lines and motion so your robot knows what is around it.",
+        goals: ["Use an ultrasonic distance sensor", "Read line-following sensors", "Explain what an IMU measures"],
+        keys: ["sensor", "sensors", "ultrasonic", "distance", "hc-sr04", "line sensor", "imu", "accelerometer", "gyroscope", "measure"],
+        lesson: [
+          { type: "p", text: "A robot is only as smart as what it can sense. Different sensors answer different questions: how far is the wall, is there a line under me, which way am I tilting?" },
+          { type: "ul", items: [
+            "Ultrasonic sensor (HC-SR04): sends a sound pulse and times the echo. Distance = echo time × speed of sound ÷ 2.",
+            "IR line sensor: a light and light detector pair. Dark lines absorb more light, so the reading changes.",
+            "IMU (gyroscope + accelerometer): measures turning speed and tilt, useful for balance and drones.",
+            "Sensors are noisy, so average several readings before trusting them."
+          ]},
+          { type: "code", code: `const int TRIG = 9;
+const int ECHO = 10;
+
+void setup() {
+  pinMode(TRIG, OUTPUT);
+  pinMode(ECHO, INPUT);
+  Serial.begin(9600);
+}
+
+long readDistanceCm() {
+  digitalWrite(TRIG, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG, HIGH);      // send a 10 microsecond pulse
+  delayMicroseconds(10);
+  digitalWrite(TRIG, LOW);
+  long us = pulseIn(ECHO, HIGH); // time for the echo to return
+  return us / 58;                // about 58 microseconds per cm (round trip)
+}
+
+void loop() {
+  Serial.println(readDistanceCm());
+  delay(200);
+}` }
+        ],
+        activity: {
+          title: "Distance logger",
+          steps: [
+            "Upload the sketch above and open the Serial Monitor.",
+            "Move a book toward the sensor and watch the numbers fall.",
+            "Average the last five readings and print the average instead."
+          ]
+        },
+        quiz: {
+          question: "What does an ultrasonic sensor measure?",
+          options: ["Colour", "Distance, using the time an echo takes to return", "Temperature", "Electric current"],
+          answer: 1,
+          explain: "It sends a sound pulse and times how long the echo takes, which gives the distance."
+        }
+      },
+      {
+        id: 2,
+        title: "Autonomous Navigation",
+        summary: "Make a robot drive itself: follow a line and avoid obstacles.",
+        goals: ["Explain a control loop", "Build line following logic", "Use a simple P controller"],
+        keys: ["autonomous", "navigation", "line following", "line follower", "obstacle", "avoid", "pid", "controller", "self driving", "drive itself", "control loop"],
+        lesson: [
+          { type: "p", text: "An autonomous robot senses, decides and acts many times every second. This cycle is called a control loop." },
+          { type: "ul", items: [
+            "Sense: read the sensors.",
+            "Decide: compare the reading with what you want.",
+            "Act: change the motors.",
+            "P controller: steer harder when the error is bigger. Turn speed = Kp × error."
+          ]},
+          { type: "tip", text: "Start with a slow robot. Speed hides mistakes, and slow robots are easier to fix." }
+        ],
+        activity: {
+          title: "Line follower",
+          steps: [
+            "Draw a black line on white paper or tape on the floor.",
+            "If the left sensor sees the line, turn left. If the right one sees it, turn right.",
+            "Tune the turning speed until the robot follows a curve without wobbling."
+          ]
+        },
+        quiz: {
+          question: "In a P controller, what makes the robot steer harder?",
+          options: ["A smaller error", "A bigger error", "A dead battery", "A longer cable"],
+          answer: 1,
+          explain: "The further the robot is from the target, the stronger the correction."
+        }
+      },
+      {
+        id: 3,
+        title: "Computer Vision Basics",
+        summary: "Teach a robot to find colours and shapes in camera pictures.",
+        goals: ["Explain what a pixel is", "Find a colour in an image", "Use a camera to make decisions"],
+        keys: ["vision", "computer vision", "camera", "image", "pixel", "colour", "color detection", "opencv", "face", "shape", "object detection"],
+        lesson: [
+          { type: "p", text: "A camera image is a grid of pixels. Each pixel has red, green and blue values. Computer vision means writing rules that turn those numbers into decisions, like 'the ball is red and on the left'." },
+          { type: "ul", items: [
+            "Colour detection: keep only pixels that match a colour range, then find where they are.",
+            "Object detection: use a trained model (like the one from Teachable Machine) to find things.",
+            "Lighting changes colours, so test your rules in the room where the robot will work."
+          ]},
+          { type: "p", text: "OpenCV is a popular free library for Python that makes these steps easier." }
+        ],
+        activity: {
+          title: "Find the red ball",
+          steps: [
+            "Use a webcam and a red object.",
+            "Use OpenCV to keep only red pixels and draw a box around them.",
+            "Print the box's x position and decide 'left', 'middle' or 'right'."
+          ]
+        },
+        quiz: {
+          question: "What is a pixel?",
+          options: ["A type of motor", "One tiny dot in an image with colour values", "A kind of battery", "A wireless signal"],
+          answer: 1,
+          explain: "Images are made of pixels. Each pixel stores how much red, green and blue it has."
+        }
+      },
+      {
+        id: 4,
+        title: "Robot Operating System (ROS)",
+        summary: "Meet the software framework that real robots use to share information.",
+        goals: ["Explain nodes, topics and messages", "Describe why robots use ROS", "Run a simple publisher idea"],
+        keys: ["ros", "robot operating system", "node", "nodes", "topic", "topics", "message", "publisher", "subscriber", "middleware"],
+        lesson: [
+          { type: "p", text: "A big robot has many jobs running at once: reading cameras, planning paths, driving motors. ROS (Robot Operating System) lets each job run as a separate program called a node." },
+          { type: "ul", items: [
+            "Node: one small program with one job, like 'read the distance sensor'.",
+            "Topic: a named channel, like /distance, where nodes publish and subscribe.",
+            "Message: the data sent on a topic, like a distance value in centimetres.",
+            "Publisher sends messages, subscriber receives them. Nodes never need to know about each other directly."
+          ]},
+          { type: "tip", text: "ROS 2 is the current version. It runs on Ubuntu Linux, and a Raspberry Pi or a simulator is a good place to try it." }
+        ],
+        activity: {
+          title: "Draw a ROS graph",
+          steps: [
+            "Draw three boxes: 'camera', 'brain' and 'motors'.",
+            "Draw arrows labelled with topic names, such as /image and /cmd_vel.",
+            "Explain which node publishes and which subscribes on each arrow."
+          ]
+        },
+        quiz: {
+          question: "In ROS, what is a topic?",
+          options: ["A robot's name", "A named channel where messages are shared", "A type of motor", "A battery setting"],
+          answer: 1,
+          explain: "Nodes publish messages to topics, and other nodes subscribe to them."
+        }
+      },
+      {
+        id: 5,
+        title: "Automation and the Smart Factory",
+        summary: "How factories use sensors, controllers and safety rules to make things automatically.",
+        goals: ["Describe a PLC and its inputs and outputs", "Design a simple sequence", "Explain safety rules for machines"],
+        keys: ["automation", "factory", "plc", "industrial", "sequence", "conveyor", "smart factory", "safety", "machine", "production"],
+        lesson: [
+          { type: "p", text: "Automation means a machine does a sequence of steps without a person pressing each button. Factories use a PLC (Programmable Logic Controller), a rugged computer that reads inputs like sensors and switches, and controls outputs like motors and valves." },
+          { type: "ul", items: [
+            "Sequence: a list of steps in order, such as 'start belt, wait for box, stop belt, push box'.",
+            "Interlock: a rule that stops one machine if another is unsafe.",
+            "Emergency stop: a big red button that cuts power to moving parts. Every machine needs one.",
+            "Test one step at a time before you run the whole sequence."
+          ]}
+        ],
+        activity: {
+          title: "Mini conveyor sequence",
+          steps: [
+            "Write the steps for sorting coloured blocks: detect colour, move belt, push block into the right bin.",
+            "Add one safety rule, such as 'stop the belt if the bin is full'.",
+            "Act out the sequence with a friend and find one step that could go wrong."
+          ]
+        },
+        quiz: {
+          question: "What is an emergency stop for?",
+          options: ["To speed up a machine", "To quickly cut power to moving parts in danger", "To save the battery", "To change colours"],
+          answer: 1,
+          explain: "Emergency stops protect people by cutting power to moving parts right away."
+        }
+      }
+    ]
+  },
+  {
+    id: 6,
+    slug: "vrobovr",
+    name: "VRoboVR",
+    color: "#ec4899",
+    icon: "🥽",
+    tagline: "Build virtual worlds, control robots from VR and create digital twins.",
+    chapters: [
+      {
+        id: 1,
+        title: "What Are VR and AR?",
+        summary: "Learn how virtual and augmented reality put you inside a digital world.",
+        goals: ["Explain VR and AR", "Describe headset sensors", "Name the comfort rules for VR"],
+        keys: ["vr", "virtual reality", "ar", "augmented reality", "headset", "mixed reality", "immersive", "xr", "reality"],
+        lesson: [
+          { type: "ul", items: [
+            "Virtual reality (VR): you wear a headset that shows a computer-made world instead of your room.",
+            "Augmented reality (AR): computer graphics are added on top of the real world, like a phone camera filter.",
+            "Headsets track your head with an IMU and cameras, so the picture moves when you move.",
+            "Two slightly different images, one for each eye, create depth."
+          ]},
+          { type: "tip", text: "Take a break every 20 minutes. Look at something 6 metres away for 20 seconds. Stop if you feel dizzy, and never run around in VR without a clear space." }
+        ],
+        activity: {
+          title: "Compare VR and AR",
+          steps: [
+            "Pick three apps or games you know and decide if each is VR, AR or neither.",
+            "Name one job each could do in a school or a robot lab.",
+            "Write how a robot could use AR to show its planned path."
+          ]
+        },
+        quiz: {
+          question: "What is the difference between VR and AR?",
+          options: ["VR adds graphics to the real world, AR replaces it", "VR replaces the view with a virtual world, AR adds graphics to the real world", "They are the same", "AR needs a headset and VR does not"],
+          answer: 1,
+          explain: "VR replaces what you see with a virtual world. AR keeps the real world and adds to it."
+        }
+      },
+      {
+        id: 2,
+        title: "Building 3D Worlds",
+        summary: "Place objects in a 3D scene using coordinates and build your first virtual room.",
+        goals: ["Understand x, y and z coordinates", "Add and move 3D objects", "Explain how a game engine works"],
+        keys: ["3d world", "3d scene", "unity", "game engine", "coordinates", "x y z", "object", "scene", "virtual room", "3d"],
+        lesson: [
+          { type: "p", text: "A 3D world is built from objects placed at positions. Each position has three numbers: x (left and right), y (up and down) and z (forward and back)." },
+          { type: "ul", items: [
+            "A game engine like Unity runs your scene, physics and graphics.",
+            "A GameObject is anything in the scene: a cube, a light, a camera.",
+            "The Transform component stores its position, rotation and scale.",
+            "Unity Personal is free for learning and small projects."
+          ]},
+          { type: "tip", text: "Save your project often and give objects clear names like RobotBody or RedBall." }
+        ],
+        activity: {
+          title: "My first virtual room",
+          steps: [
+            "Create a Plane for the floor and a Cube for a table.",
+            "Move the cube using its Transform position values.",
+            "Add a Sphere and place it on the table so it does not fall through."
+          ]
+        },
+        quiz: {
+          question: "In a 3D scene, what does the z coordinate control?",
+          options: ["Left and right", "Up and down", "Forward and back", "Colour"],
+          answer: 2,
+          explain: "x is left and right, y is up and down, and z is forward and back."
+        }
+      },
+      {
+        id: 3,
+        title: "Scripting Interactions",
+        summary: "Use code to move objects when a player presses keys or touches things.",
+        goals: ["Write a script attached to an object", "Read keyboard input", "Use Update() and Time.deltaTime"],
+        keys: ["script", "scripting", "c#", "csharp", "update", "input", "keyboard", "interaction", "move object", "player", "controller"],
+        lesson: [
+          { type: "p", text: "Scripts give objects behaviour. In Unity you write C# scripts and attach them to GameObjects. The Update() function runs every frame." },
+          { type: "code", code: `using UnityEngine;
+
+public class Mover : MonoBehaviour
+{
+    public float speed = 2f;
+
+    void Update()
+    {
+        float h = Input.GetAxis("Horizontal");   // left/right arrow keys
+        transform.Translate(new Vector3(h, 0, 0) * speed * Time.deltaTime);
+    }
+}` },
+          { type: "p", text: "Time.deltaTime makes movement the same speed on fast and slow computers." }
+        ],
+        activity: {
+          title: "Drive the robot in VR",
+          steps: [
+            "Attach the Mover script to a cube.",
+            "Press Play and move the cube with the arrow keys.",
+            "Add a second input for forward and back using 'Vertical' and try jumping with the space bar."
+          ]
+        },
+        quiz: {
+          question: "Why do we multiply movement by Time.deltaTime?",
+          options: ["To change the colour", "So movement speed stays the same on different computers", "To make the object invisible", "To save memory"],
+          answer: 1,
+          explain: "Frames run at different speeds on different computers. deltaTime keeps the movement consistent."
+        }
+      },
+      {
+        id: 4,
+        title: "Controlling a Real Robot from VR",
+        summary: "Send commands from a virtual controller to a real robot, and see its data in VR.",
+        goals: ["Explain a digital twin", "Send commands over WiFi", "Show sensor data in a virtual scene"],
+        keys: ["digital twin", "twin", "control robot", "telemetry", "wifi", "send command", "real robot", "vr control", "remote", "esp32"],
+        lesson: [
+          { type: "p", text: "A digital twin is a virtual copy of a real robot. Commands from the VR world go to the real robot, and the robot's sensor readings come back to update the copy." },
+          { type: "ul", items: [
+            "Commands: a button in VR sends 'forward' over WiFi to an ESP32 on the robot (the same idea as Level 4, Chapter 3).",
+            "Telemetry: the robot sends back readings like distance or battery level.",
+            "Latency: there is always a small delay, so design controls that still work with a short lag.",
+            "Safety: give the real robot a stop command that works even if the VR app freezes."
+          ]}
+        ],
+        activity: {
+          title: "Digital twin panel",
+          steps: [
+            "Draw a VR panel with a Forward button and a distance display.",
+            "Write the message your VR button will send, for example 'F' or 'forward'.",
+            "Plan what the robot does if no message arrives for two seconds."
+          ]
+        },
+        quiz: {
+          question: "What is a digital twin?",
+          options: ["Two identical robots in one room", "A virtual copy of a real robot that stays in sync with it", "A type of battery", "A VR headset brand"],
+          answer: 1,
+          explain: "A digital twin is a virtual model linked to a real object, sharing its commands and data."
+        }
+      },
+      {
+        id: 5,
+        title: "Final Project: The VR Robot Lab",
+        summary: "Combine all six levels into a VR lab that controls and monitors a real robot.",
+        goals: ["Plan a full VR and robot system", "Connect a virtual scene to real hardware", "Present your project with a demo and a database log"],
+        keys: ["vr final", "final project", "vr project", "capstone", "vr lab", "combine", "everything", "all levels", "complete", "finish"],
+        lesson: [
+          { type: "p", text: "Your capstone brings everything together: circuits and sensors (Quest), printed parts (Craft), code and databases (Live), wireless control (Verse), smart sensing and automation (Tech), and a virtual world with a digital twin (VR)." },
+          { type: "ul", items: [
+            "Plan: draw the system with the real robot, the VR scene, the database and the network.",
+            "Build: a virtual room that shows the robot's position and its latest sensor readings.",
+            "Log: store each reading and command in a database so you can replay the session.",
+            "Present: demonstrate the robot and the VR twin, then explain one safety feature and one improvement."
+          ]}
+        ],
+        activity: {
+          title: "Launch the VR Robot Lab",
+          steps: [
+            "Write a one-page plan with a block diagram of all parts.",
+            "Build one feature at a time: sensor in VR, then control, then logging.",
+            "Invite a friend to try the VR twin and record their feedback."
+          ]
+        },
+        quiz: {
+          question: "Which of these does the VR Robot Lab capstone bring together?",
+          options: ["Only drawing", "Only VR games", "Electronics, code, databases, wireless control, automation and virtual worlds", "Only 3D printing"],
+          answer: 2,
+          explain: "The capstone combines skills from all six levels into one connected project."
+        }
+      }
+    ]
   }
 ];

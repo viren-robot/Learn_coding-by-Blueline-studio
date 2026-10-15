@@ -2,11 +2,13 @@
 
 A free, kid-friendly coding course that runs as a static website on GitHub Pages.
 
-- **4 levels, 5 chapters each (20 chapters total)**
+- **6 levels, 5 chapters each (30 chapters total)**
   1. **IRobo Quest**: Arduino, LEDs, buttons, motors and servos, 7-segment displays, Teachable Machine
   2. **IRoboCraft**: 3D printing, CAD design, gears, levers and pulleys, building a printed robot
   3. **IRobolive**: Python basics, functions, databases, SQL, sensors and live data
   4. **IRoboVerse**: wireless control, RC cars, phone-controlled robots, drones, final project
+  5. **VRoboTech**: advanced sensors, autonomous navigation, computer vision, ROS, automation
+  6. **VRoboVR**: VR and AR basics, 3D worlds, scripting interactions, digital twins, VR robot lab final project
 - Every chapter has goals, a lesson, code samples, an activity and a quick-check quiz.
 - Progress is saved in the browser (per device).
 - **Robo**, the built-in assistant (bottom-right corner), answers questions from the course content and a small glossary. It runs entirely in the browser, so it needs no API key or server.
