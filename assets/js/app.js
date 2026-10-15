@@ -296,6 +296,8 @@
 
         '<div class="panel"><h2>Activity: ' + esc(chapter.activity.title) + '</h2><ol class="steps">' + steps + "</ol></div>" +
 
+        kitHtml(levelId, chapterId) +
+
         quizHtml(chapter.quiz) +
 
         '<div class="btn-row">' +
@@ -310,6 +312,7 @@
       "</div>";
 
     wireQuiz(chapter.quiz);
+    wireKit();
 
     var completeBtn = document.getElementById("complete-btn");
     completeBtn.addEventListener("click", function () {
@@ -317,6 +320,80 @@
       setDone(level.id, chapter.id, nowDone);
       completeBtn.textContent = nowDone ? "✓ Completed" : "Mark as complete";
     });
+  }
+
+  // ----- Chapter kit: components, circuit diagram and test code -----
+  function kitDiagram(kit) {
+    var NW = 150, NH = 56;
+    var pos = {};
+    kit.nodes.forEach(function (n) { pos[n[0]] = { label: n[1], x: n[2], y: n[3], type: n[4] }; });
+    var svg = ['<svg class="kit-svg" viewBox="0 0 700 340" role="img" aria-label="Circuit or flow diagram">'];
+    svg.push('<defs><marker id="kit-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker></defs>');
+    kit.wires.forEach(function (w) {
+      var a = pos[w[0]], b = pos[w[1]];
+      if (!a || !b) return;
+      svg.push('<line class="kit-wire" x1="' + a.x + '" y1="' + a.y + '" x2="' + b.x + '" y2="' + b.y + '" marker-end="url(#kit-arrow)"/>');
+      if (w[2]) {
+        svg.push('<text class="kit-wire-label" x="' + (a.x + b.x) / 2 + '" y="' + ((a.y + b.y) / 2 - 8) + '" text-anchor="middle">' + esc(w[2]) + "</text>");
+      }
+    });
+    kit.nodes.forEach(function (n) {
+      var p = pos[n[0]];
+      svg.push('<rect class="kit-node kit-' + p.type + '" x="' + (p.x - NW / 2) + '" y="' + (p.y - NH / 2) + '" width="' + NW + '" height="' + NH + '" rx="10"/>');
+      var lines = p.label.split("|");
+      lines.forEach(function (line, i) {
+        var y = p.y - ((lines.length - 1) * 9) + i * 18 + 5;
+        svg.push('<text class="kit-node-text' + (i === 0 ? " kit-title" : "") + '" x="' + p.x + '" y="' + y + '" text-anchor="middle">' + esc(line) + "</text>");
+      });
+    });
+    svg.push("</svg>");
+    return svg.join("");
+  }
+
+  function kitHtml(levelId, chapterId) {
+    var kit = (window.KITS || {})[levelId + "." + chapterId];
+    if (!kit) return "";
+    var isArduino = kit.test.lang === "Arduino";
+    var items = kit.components.map(function (c) { return "<li>" + esc(c) + "</li>"; }).join("");
+    return (
+      '<div class="panel kit-panel">' +
+        "<h2>Kit for this chapter</h2>" +
+        "<h3>Components</h3>" +
+        '<ul class="kit-list">' + items + "</ul>" +
+        "<h3>Circuit diagram</h3>" +
+        '<p class="page-sub">Wires show connections, and arrows show direction of signal or data.</p>' +
+        '<div class="kit-diagram">' + kitDiagram(kit) + "</div>" +
+        "<h3>Test code: " + esc(kit.test.name) + " (" + esc(kit.test.lang) + ")</h3>" +
+        '<pre class="kit-code"><code>' + esc(kit.test.code) + "</code></pre>" +
+        '<div class="btn-row">' +
+          '<button class="btn" data-kit-copy>Copy code</button>' +
+          (isArduino
+            ? '<button class="btn primary" data-kit-flash>Open in HighFYI</button>'
+            : '<span class="page-sub">Flash this one with the Arduino IDE. HighFYI supports Arduino boards for now.</span>') +
+        "</div>" +
+      "</div>"
+    );
+  }
+
+  function wireKit() {
+    var panel = document.querySelector(".kit-panel");
+    if (!panel) return;
+    var code = panel.querySelector(".kit-code code").textContent;
+    var copy = panel.querySelector("[data-kit-copy]");
+    copy.addEventListener("click", function () {
+      try {
+        navigator.clipboard.writeText(code).then(function () { copy.textContent = "Copied"; });
+      } catch (e) {
+        copy.textContent = "Copy not available";
+      }
+    });
+    var flash = panel.querySelector("[data-kit-flash]");
+    if (flash) {
+      flash.addEventListener("click", function () {
+        try { localStorage.setItem("highfyi-code", code); } catch (e) { /* storage blocked */ }
+        window.location.hash = "#/highfyi";
+      });
+    }
   }
 
   function quizHtml(quiz) {
@@ -362,7 +439,9 @@
     var hash = window.location.hash.replace(/^#/, "") || "/";
     var parts = hash.split("/").filter(Boolean);
 
-    if (parts.length === 0) {
+    if (parts[0] === "highfyi" && parts.length === 1) {
+      window.HighFYI.render(app);
+    } else if (parts.length === 0) {
       renderHome();
     } else if (parts[0] === "level" && parts.length === 2) {
       renderLevel(Number(parts[1]));

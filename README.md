@@ -30,6 +30,25 @@ tools/make-lesson-videos.js  rebuilds the lesson videos from the lesson files
 
 To edit a lesson, change its file in `assets/js/lessons/`. To edit its questions, change the matching `assets/js/quizzes/` file. Each question is `[question, correct answer, wrong, wrong, wrong]`. To change a chapter's activity, quiz or assistant keywords, edit `assets/js/content.js`.
 
+## Chapter kits
+
+Each chapter's practice page lists the components, shows a circuit diagram (or a flow diagram for software and design chapters), and gives a test code you can run. The data is in `assets/js/kits.js`.
+
+## HighFYI flash engine
+
+Open **HighFYI** in the top menu. It has four parts:
+
+1. **Device and port.** Choose Arduino Uno or Nano (old bootloader), then click *Choose COM port*. This needs Chrome or Edge, because it uses the Web Serial API.
+2. **Code.** Paste a sketch or load an example, then click *Verify*. Verify is a quick static check for common mistakes. It is **not a compiler**.
+3. **Flash.** Compile the sketch in the Arduino IDE with *Sketch → Export Compiled Binary*, choose the `.hex` file, then click *Flash*. The engine uses the STK500 bootloader protocol, writes the program, and reads it back to verify it.
+4. **Serial monitor.** Connect at a chosen baud rate, read output, and send messages.
+
+Limits:
+
+- Compiling C++ needs the Arduino toolchain, which a static web page cannot run. Pasted code is therefore checked, not compiled, and it must be compiled in the Arduino IDE before flashing.
+- ESP32 flashing is not supported yet. Use the Arduino IDE for ESP32 boards.
+- The flasher has been tested against an emulated Uno (`node tools/test-highfyi.js`), not a physical board.
+
 ## Lesson videos
 
 Each lesson has a video in `assets/videos/`. The included videos are silent slide videos made from each lesson's title and key points. To regenerate them after editing lessons:
