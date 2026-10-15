@@ -181,6 +181,8 @@
 
         '<div class="panel"><h2>' + esc(lesson.title) + "</h2>" + lessonBlocks(lesson.blocks) + "</div>" +
 
+        lessonQuizHtml(levelId, chapterId, n) +
+
         '<div class="btn-row">' +
           '<a class="btn" href="' + prevHref + '">← Previous</a>' +
           '<a class="btn primary" href="' + nextHref + '">' + nextLabel + "</a>" +
@@ -188,6 +190,75 @@
       "</div>";
 
     wireVideo();
+    wireLessonQuiz();
+  }
+
+  // Ten short questions per lesson. Options are shuffled each time the lesson opens.
+  function shuffle(list) {
+    var a = list.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function lessonQuizHtml(levelId, chapterId, n) {
+    var questions = (window.LESSON_QUIZZES || {})[levelId + "." + chapterId + "." + n] || [];
+    if (!questions.length) return "";
+    var items = questions.map(function (q, i) {
+      var options = shuffle(q.slice(1).map(function (text, j) {
+        return { text: text, correct: j === 0 };
+      }));
+      var buttons = options.map(function (o) {
+        return '<button class="quiz-option" data-correct="' + (o.correct ? "1" : "0") + '">' + esc(o.text) + "</button>";
+      }).join("");
+      return (
+        '<div class="lq-item">' +
+          '<p class="lq-question"><strong>' + (i + 1) + ".</strong> " + esc(q[0]) + "</p>" +
+          '<div class="quiz-options">' + buttons + "</div>" +
+        "</div>"
+      );
+    }).join("");
+    return (
+      '<div class="panel lesson-quiz">' +
+        "<h2>Lesson check</h2>" +
+        '<p class="page-sub">Answer all ' + questions.length + ' questions. <span id="lq-score" aria-live="polite">Score: 0 / ' + questions.length + "</span></p>" +
+        items +
+      "</div>"
+    );
+  }
+
+  function wireLessonQuiz() {
+    var items = document.querySelectorAll(".lq-item");
+    if (!items.length) return;
+    var total = items.length;
+    var correct = 0;
+    var answered = 0;
+    var score = document.getElementById("lq-score");
+
+    Array.prototype.forEach.call(items, function (item) {
+      var buttons = item.querySelectorAll(".quiz-option");
+      Array.prototype.forEach.call(buttons, function (btn) {
+        btn.addEventListener("click", function () {
+          if (item.getAttribute("data-done")) return;
+          item.setAttribute("data-done", "1");
+          answered++;
+          var isRight = btn.getAttribute("data-correct") === "1";
+          if (isRight) {
+            btn.classList.add("correct");
+            correct++;
+          } else {
+            btn.classList.add("wrong");
+            var right = item.querySelector('[data-correct="1"]');
+            if (right) right.classList.add("correct");
+          }
+          Array.prototype.forEach.call(buttons, function (b) { b.disabled = true; });
+          score.textContent = "Score: " + correct + " / " + total +
+            (answered === total ? " · Finished!" : "");
+        });
+      });
+    });
   }
 
   function wireVideo() {

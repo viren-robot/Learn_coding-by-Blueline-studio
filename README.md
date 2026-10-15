@@ -9,7 +9,7 @@ A free, kid-friendly coding course that runs as a static website on GitHub Pages
   4. **IRoboVerse**: wireless control, RC cars, phone-controlled robots, drones, final project
   5. **VRoboTech**: advanced sensors, autonomous navigation, computer vision, ROS, automation
   6. **VRoboVR**: VR and AR basics, 3D worlds, scripting interactions, digital twins, VR robot lab final project
-- Every lesson has a video and a short written lesson with code samples. Each chapter ends with a practice page: an activity and a quick-check quiz.
+- Every lesson has a video, a short written lesson with code samples, and a 10-question lesson check. Each chapter ends with a practice page: an activity and a quick-check quiz.
 - Progress is saved in the browser (per device).
 - **Robo**, the built-in assistant (bottom-right corner), answers questions from the course content and a small glossary. It runs entirely in the browser, so it needs no API key or server.
 
@@ -20,6 +20,7 @@ index.html              page shell
 assets/css/style.css    styles (light and dark mode, phone-friendly)
 assets/js/content.js    levels, chapters, activities, quizzes and assistant keywords
 assets/js/lessons/      the 10 lessons per chapter (helpers.js, level1.js ... level6.js)
+assets/js/quizzes/      10 lesson-check questions per lesson (level1.js ... level6.js, 3,000 in total)
 assets/js/app.js        page routing, lesson player, progress tracking, quizzes
 assets/js/assistant.js  the Robo assistant
 assets/videos/          one MP4 per lesson, named l<level>-c<chapter>-<lesson>.mp4
@@ -27,7 +28,7 @@ tools/make-lesson-videos.js  rebuilds the lesson videos from the lesson files
 .nojekyll               tells GitHub Pages to serve the files as-is
 ```
 
-To edit a lesson, change its file in `assets/js/lessons/`. To change a chapter's activity, quiz or assistant keywords, edit `assets/js/content.js`.
+To edit a lesson, change its file in `assets/js/lessons/`. To edit its questions, change the matching `assets/js/quizzes/` file. Each question is `[question, correct answer, wrong, wrong, wrong]`. To change a chapter's activity, quiz or assistant keywords, edit `assets/js/content.js`.
 
 ## Lesson videos
 
