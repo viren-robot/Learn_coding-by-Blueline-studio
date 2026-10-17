@@ -539,3 +539,42 @@ code { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; 
 }
 .hf .hf-input { flex: 1; min-width: 180px; }
 .hf .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Assistant settings (local AI) */
+.assistant-head-buttons { display: inline-flex; gap: 4px; }
+.assistant-settings {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  display: grid;
+  gap: 10px;
+  font-size: 0.9rem;
+  overflow-y: auto;
+  max-height: 60%;
+}
+.assistant-settings[hidden] { display: none; }
+.assistant-check { display: flex; align-items: center; gap: 8px; font-weight: 800; }
+.assistant-field { display: grid; gap: 4px; font-weight: 700; color: var(--muted); }
+.assistant-field input, .assistant-field select {
+  font: inherit;
+  padding: 7px 10px;
+  border-radius: 10px;
+  border: 2px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  min-width: 0;
+}
+.assistant-row { display: flex; gap: 8px; align-items: end; }
+.assistant-row .assistant-field { flex: 1; }
+.assistant-small {
+  font: inherit;
+  font-weight: 800;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 14px;
+  background: var(--brand);
+  color: #fff;
+  cursor: pointer;
+}
+.assistant-note { margin: 0; color: var(--muted); font-size: 0.85rem; }
+.assistant-note code { font-size: 0.8rem; word-break: break-all; }

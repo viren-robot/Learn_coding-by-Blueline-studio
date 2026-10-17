@@ -13,7 +13,17 @@ A free, kid-friendly coding course that runs as a static website.
   6. **VRoboVR**: VR and AR basics, 3D worlds, scripting interactions, digital twins, VR robot lab final project
 - Every lesson has a video, a short written lesson with code samples, and a 10-question lesson check. Each chapter ends with a practice page: an activity and a quick-check quiz.
 - Progress is saved in the browser (per device).
-- **Robo**, the built-in assistant (bottom-right corner), answers questions from the course content and a small glossary. It runs entirely in the browser, so it needs no API key or server.
+- **Robo**, the assistant (bottom-right corner), answers from the course content by default, with no API key or server. Optionally, it can use a local AI model through [Ollama](https://ollama.com), so answers are generated on your own computer.
+
+### Using local AI with Ollama
+
+1. Install Ollama and pull a small model, for example `ollama pull llama3.2`.
+2. Allow this site to talk to Ollama, then start it:
+   - macOS/Linux: `OLLAMA_ORIGINS="https://learnbrilliantly.pages.dev" ollama serve`
+   - Windows (PowerShell): `$env:OLLAMA_ORIGINS="https://learnbrilliantly.pages.dev"; ollama serve`
+3. Open Robo, click the gear icon, tick **Use local AI**, click **Check**, and choose a model.
+
+Questions are sent only to the Ollama address you set (by default `http://localhost:11434`). If Ollama is not running, Robo falls back to the keyword answers.
 
 ## Screenshots
 
