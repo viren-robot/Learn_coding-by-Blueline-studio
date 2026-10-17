@@ -15,6 +15,20 @@ A free, kid-friendly coding course that runs as a static website.
 - Progress is saved in the browser (per device).
 - **Robo**, the built-in assistant (bottom-right corner), answers questions from the course content and a small glossary. It runs entirely in the browser, so it needs no API key or server.
 
+## Screenshots
+
+| Home | Level page |
+| --- | --- |
+| ![Home page with six levels](docs/screenshots/home.png) | ![Level 1 chapters](docs/screenshots/level-1.png) |
+
+| Lesson check | Chapter kit |
+| --- | --- |
+| ![Ten-question lesson check](docs/screenshots/lesson-check.png) | ![Components, circuit diagram and test code](docs/screenshots/kit.png) |
+
+| HighFYI flash engine |
+| --- |
+| ![HighFYI port, code, flash and serial monitor](docs/screenshots/highfyi.png) |
+
 ## Project layout
 
 ```
