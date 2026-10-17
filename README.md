@@ -1,6 +1,8 @@
 # Learn Coding by Blueline Studio
 
-A free, kid-friendly coding course that runs as a static website on GitHub Pages.
+A free, kid-friendly coding course that runs as a static website.
+
+**Live site:** https://learnbrilliantly.pages.dev
 
 - **6 levels, 5 chapters each (30 chapters total), 10 lessons per chapter (300 lessons)**
   1. **IRobo Quest**: Arduino, LEDs, buttons, motors and servos, 7-segment displays, Teachable Machine
@@ -60,7 +62,11 @@ node tools/make-lesson-videos.js
 
 This needs `ffmpeg` on your PATH. To use real narrated videos instead, replace a file in `assets/videos/` with your own MP4 using the same name.
 
-## Publish on GitHub Pages
+## Publish
+
+The site is served from Cloudflare Pages at https://learnbrilliantly.pages.dev. It has no build step, so deploy the repository root as-is.
+
+To publish on GitHub Pages instead:
 
 1. Push this branch to GitHub.
 2. Open the repository's **Settings → Pages**.
